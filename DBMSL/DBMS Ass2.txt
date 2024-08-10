@@ -1,0 +1,316 @@
+Assignment No : 2
+
+-----------------------------------------------------------------------------------
+
+a. Design and Develop SQL DDL statements which demonstrate the use of SQL objects such as Table, View, Index, Sequence, Synonym, different constraints etc.
+
+b. Write at least 10 SQL queries on the suitable database application using SQL DML statements.
+
+(Insert, Select, Update, Delete, operators, functions, set operator, all constraints, view, index, synonym, sequence)
+
+Create following relations and excecute the queries given below.
+Account(Acc_no, branch_name,balance)
+branch(branch_name,branch_city,assets)
+customer(cust_name,cust_street,cust_city)
+Depositor(cust_name,acc_no)
+Loan(loan_no,branch_name,amount)
+Borrower(cust_name,loan_no)
+
+-----------------------------------------------------------------------------------
+
+mysql> create table Account( acc_no int, branch_name varchar(20), balance numeric(8,2), primary key (acc_no));
+
+mysql> create table Branch( branch_name varchar(20), branch_city varchar(20), assets int, primary key (branch_name));
+
+mysql> create table Customer( cust_name varchar(40), cust_street varchar(40), cust_city varchar(20), primary key (cust_name));
+
+mysql> create table Depositor( cust_name varchar(40), acc_no int, foreign key (cust_name) references Customer (cust_name), foreign key (acc_no) references Account (acc_no));
+
+mysql> create table Loan( loan_no int, branch_name varchar(20), amount int, primary key (loan_no), foreign key (branch_name) references Branch (branch_name));
+
+mysql> create table Borrower( cust_name varchar(40), loan_no int, foreign key (cust_name) references Customer (cust_name), foreign key (loan_no) references Loan (loan_no));
+
+mysql> insert into account values (1,'pimpri',10000);
+mysql> insert into account values (2,'pimpri',12000);
+mysql> insert into account values (3,'akurdi',14000);
+mysql> insert into account values (4,'nigdi',16000);
+mysql> insert into account values (5,'nigdi',18000);
+
+mysql> insert into branch values ('pimpri','pune',1000000);
+mysql> insert into branch values ('akurdi','pune',1200000);
+mysql> insert into branch values ('nigdi','mumbai',1400000);
+
+mysql> insert into customer values ('A','M.G.road','pune');
+mysql> insert into customer values ('B','J.M.road','pune');
+mysql> insert into customer values ('C','M.R.road','pune');
+mysql> insert into customer values ('D','V.N.road','pune');
+mysql> insert into customer values ('E','A.B.road','mumbai');
+
+mysql> insert into depositor values ('C',1);
+mysql> insert into depositor values ('B',2);
+mysql> insert into depositor values ('A',3);
+mysql> insert into depositor values ('E',4);
+mysql> insert into depositor values ('D',5);
+
+mysql> insert into loan values (101,'akurdi',60000);
+mysql> insert into loan values (102,'pimpri',40000);
+mysql> insert into loan values (103,'nigdi',80000);
+
+mysql> insert into borrower values ('C', 101);
+mysql> insert into borrower values ('B', 102);
+mysql> insert into borrower values ('E',103);
+
+mysql> select * from Borrower;
++-----------+---------+
+| cust_name | loan_no |
++-----------+---------+
+| C         |     101 |
+| B         |     102 |
+| E         |     103 |
++-----------+---------+
+
+mysql> select * from branch;
++-------------+-------------+---------+
+| branch_name | branch_city | assets  |
++-------------+-------------+---------+
+| akurdi      | pune        | 1200000 |
+| nigdi       | mumbai      | 1400000 |
+| pimpri      | pune        | 1000000 |
++-------------+-------------+---------+
+
+mysql> select * from customer;
++-----------+-------------+-----------+
+| cust_name | cust_street | cust_city |
++-----------+-------------+-----------+
+| A         | M.G.road    | pune      |
+| B         | J.M.road    | pune      |
+| C         | M.R.road    | pune      |
+| D         | V.N.road    | pune      |
+| E         | A.B.road    | mumbai    |
++-----------+-------------+-----------+
+
+mysql> select * from depositor;
++-----------+--------+
+| cust_name | acc_no |
++-----------+--------+
+| C         |      1 |
+| B         |      2 |
+| A         |      3 |
+| E         |      4 |
+| D         |      5 |
++-----------+--------+
+
+mysql> select * from loan;
++---------+-------------+--------+
+| loan_no | branch_name | amount |
++---------+-------------+--------+
+|     101 | akurdi      |  60000 |
+|     102 | pimpri      |  40000 |
+|     103 | nigdi       |  80000 |
++---------+-------------+--------+ 
+
+mysql> select * from borrower;
++-----------+---------+
+| cust_name | loan_no |
++-----------+---------+
+| C         |     101 |
+| B         |     102 |
+| E         |     103 |
++-----------+---------+ 
+
+-----------------------------------------------------------------------------------
+
+Q1. Find the names of all branches in loan relation
+
+mysql> select branch_name from loan;
++-------------+
+| branch_name |
++-------------+
+| akurdi      |
+| nigdi       |
+| pimpri      |
++-------------+
+
+Q2. Find all loan numbers for loans made at Akurdi Branch with loan amount > 12000.
+
+mysql> select loan_no from loan where branch_name='akurdi' and amount>12000;
++---------+
+| loan_no |
++---------+
+|     101 |
++---------+
+
+Q3. Find all customers who have a loan from bank. Find their names,loan_no and loan amount.
+
+mysql> select b.cust_name,b.loan_no,l.amount
+    -> from borrower b
+    -> inner join loan l
+    -> on b.loan_no = l.loan_no;
++-----------+---------+--------+
+| cust_name | loan_no | amount |
++-----------+---------+--------+
+| C         |     101 |  60000 |
+| B         |     102 |  40000 |
+| E         |     103 |  80000 |
++-----------+---------+--------+
+
+Q4. List all customers in alphabetical order who have loan from Akurdi branch.
+
+mysql> select b.cust_name
+    -> from borrower b
+    -> inner join loan l
+    -> on b.loan_no = l.loan_no
+    -> where branch_name='akurdi'
+    -> order by b.cust_name;
++-----------+
+| cust_name |
++-----------+
+| C         |
++-----------+ 
+
+Q5. Find all customers who have an account or loan or both at bank.
+
+mysql> select cust_name from depositor
+    -> intersect
+    -> select cust_name from borrower;
++-----------+
+| cust_name |
++-----------+
+| B         |
+| C         |
+| E         |
++-----------+ 
+
+Q6. Find all customers who have both account and loan at bank.
+
+mysql> select cust_name from depositor
+    -> union
+    -> select cust_name from borrower;
++-----------+
+| cust_name |
++-----------+
+| A         |
+| B         |
+| C         |
+| D         |
+| E         |
++-----------+ 
+
+Q7. Find all customer who have account but no loan at the bank.
+
+mysql> select cust_name from depositor
+    -> except
+    -> select cust_name from borrower;
++-----------+
+| cust_name |
++-----------+
+| A         |
+| D         |
++-----------+ 
+
+Q8. Find average account balance at Akurdi branch.
+
+mysql> select avg(balance) from account where branch_name = 'akurdi';
++--------------+
+| avg(balance) |
++--------------+
+| 14000.000000 |
++--------------+ 
+
+Q9. Find the average account balance at each branch
+
+mysql> select branch_name,avg(balance) from account group by branch_name;
++-------------+--------------+
+| branch_name | avg(balance) |
++-------------+--------------+
+| pimpri      | 11000.000000 |
+| akurdi      | 14000.000000 |
+| nigdi       | 17000.000000 |
++-------------+--------------+
+
+Q10. Find no. of depositors at each branch.
+
+mysql> select count(Distinct cust_name),branch_name
+    -> from account
+    -> natural join depositor
+    -> group by branch_name;
++---------------------------+-------------+
+| count(Distinct cust_name) | branch_name |
++---------------------------+-------------+
+|                         1 | akurdi      |
+|                         2 | nigdi       |
+|                         2 | pimpri      |
++---------------------------+-------------+
+
+Q11. Find the branches where average account balance > 12000
+
+mysql> select branch_name from account
+    -> where balance>1200
+    -> group by branch_name;
++-------------+
+| branch_name |
++-------------+
+| pimpri      |
+| akurdi      |
+| nigdi       |
++-------------+
+
+Q12. Find number of tuples in customer relation
+
+mysql> select count(cust_name) no_of_tuples from customer;
++--------------+
+| no_of_tuples |
++--------------+
+|            5 |
++--------------+
+
+Q13. Calculate total loan amount given by bank.
+
+mysql> select sum(amount) total_loan_amount from loan;
++-------------------+
+| total_loan_amount |
++-------------------+
+|            180000 |
++-------------------+
+
+Q14. Delete all loans with loan amount between 1300 and 1500.
+
+mysql> delete from loan
+    -> where amount>1300
+    -> and amount<1500;
+
+mysql> select * from loan;
++---------+-------------+--------+
+| loan_no | branch_name | amount |
++---------+-------------+--------+
+|     101 | akurdi      |  60000 |
+|     102 | pimpri      |  40000 |
+|     103 | nigdi       |  80000 |
++---------+-------------+--------+
+
+Q.17. Create sequence roll_seq and use in student table for roll_no column.
+
+mysql> create table studeent( roll_no int auto_increment, name varchar(20), age int, primary key (roll_no));
+
+mysql> insert into studeent (name,age) values ('P',20);
+mysql> insert into studeent (name,age) values ('Q',20);
+mysql> insert into studeent (name,age) values ('R',20);
+mysql> insert into studeent (name,age) values ('S',19);
+
+mysql> select * from studeent;
++---------+------+------+
+| roll_no | name | age  |
++---------+------+------+
+|       1 | P    |   20 |
+|       2 | Q    |   20 |
+|       3 | R    |   20 |
+|       4 | S    |   19 |
++---------+------+------+
+
+
+
+
+
+
+
+

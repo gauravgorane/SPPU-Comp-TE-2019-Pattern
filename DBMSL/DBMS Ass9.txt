@@ -1,0 +1,84 @@
+Assignment No : 9
+
+-----------------------------------------------------------------------------------
+
+1.
+> db.orderinfo.insertMany([{cust_id:123, cust_name:'abc', status:'A', price:250},{cust_id:456, 
+cust_name:'def',status:'B',price:700},{cust_id:789,cust_name:'ghi',status:'A',price:2000}])
+{
+ acknowledged: true,
+ insertedIds: {
+ '0': ObjectId("652f96d021dbb46d119393ac"),
+ '1': ObjectId("652f96d021dbb46d119393ad"),
+ '2': ObjectId("652f96d021dbb46d119393ae")
+ }
+}
+
+i)> db.orderinfo.aggregate([{$match:{status:'A'}},{$group:{_id:"$cust_id",avgPrice:
+{$avg:"$price"}}}])
+[ { _id: 789, avgPrice: 2000 }, { _id: 123, avgPrice: 250 } ]
+
+ii)> db.orderinfo.aggregate([{$match:{status:'A'}},{$group:{_id:"$cust_id",avgPrice:
+{$avg:"$price"}}}])
+[ { _id: 789, avgPrice: 2000 }, { _id: 123, avgPrice: 250 } ]
+> db.orderinfo.find({price:{$gte:100, $lte:1000}},{cust_id:1,status:1})
+[
+ {
+ _id: ObjectId("652f96d021dbb46d119393ac"),
+ cust_id: 123,
+ status: 'A'
+ },
+ {
+ _id: ObjectId("652f96d021dbb46d119393ad"),
+ cust_id: 456,
+ status: 'B'
+ }
+]
+
+iii)> db.orderinfo.find({},{_id:0})
+[
+ { cust_id: 123, cust_name: 'abc', status: 'A', price: 250 },
+ { cust_id: 456, cust_name: 'def', status: 'B', price: 700 },
+ { cust_id: 789, cust_name: 'ghi', status: 'A', price: 2000 }
+]
+
+iv)> db.orderinfo.createIndex({cust_id:1})
+cust_id_1
+
+2.
+> db.movies.insertMany([{name:'KGF',type:'action',budget:1000000,producer:
+{name:'abc',address:'mumbai'}},{name:'RRR',type:'action',budget:500000,producer:
+{name:'def',address:'south'}},{name:'freddy',type:'action',budget:100000,producer:
+{name:'ghi',address:'delhi'}},{name:'3idiots',type:'comedy',budget:600000,producer:
+{name:'jkl',address:'pune'}}])
+{
+ acknowledged: true,
+ insertedIds: {
+ '0': ObjectId("652f997921dbb46d119393af"),
+ '1': ObjectId("652f997921dbb46d119393b0"),
+ '2': ObjectId("652f997921dbb46d119393b1")
+ }
+}
+
+i)> > db.movies.find({budget:{$gte:100000}},{name:1,_id:0})
+[
+ { name: 'KGF' },
+ { name: 'RRR' },
+ { name: 'freddy' },
+ { name: '3idiots' }
+]
+
+ii)> db.movies.find({'producer.address':'pune'},{'producer.name':1,_id:0})
+[ { producer: { name: 'jkl' } } ]
+
+iii)> db.movies.updateMany({type:'action'},{$set:{type:'horror'}})
+{
+ acknowledged: true,
+ insertedId: null,
+ matchedCount: 3,
+ modifiedCount: 3,
+ upsertedCount: 0
+}
+
+iv)> db.movies.find({'producer.name':'abc'},{'producer.name':1,'producer.address':1,_id:0})
+[ { producer: { name: 'abc', address: 'mumbai' } } ]

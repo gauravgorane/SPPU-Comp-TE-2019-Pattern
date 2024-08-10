@@ -1,0 +1,109 @@
+Assignment No : 4
+
+-----------------------------------------------------------------------------------
+
+Implement PL/SQL Code block for given requirements.
+Consider Tables:
+1. Borrower(Roll_no, Name, Date of Issue, Name of Book, Status)
+2. Fine(Roll_no, Date, Amt)
+• Accept Roll_no and Name of Book from user.
+• Check the number of days (from date of issue).
+• If days are between 15 to 30 then fine amount will be Rs 5per day.
+• If no. of days>30, per day fine will be Rs 50 per day and for days less than 30, Rs. 5 per day.
+
+-----------------------------------------------------------------------------------
+ 
+mysql> create table Fine(roll_no int,Date date,Amount int);
+
+mysql> desc fine;
++---------+------+------+-----+---------+-------+
+| Field   | Type | Null | Key | Default | Extra |
++---------+------+------+-----+---------+-------+
+| roll_no | int  | YES  |     | NULL    |       |
+| Date    | date | YES  |     | NULL    |       |
+| Amount  | int  | YES  |     | NULL    |       |
++---------+------+------+-----+---------+-------+
+
+mysql> create table Borrower(roll_no int AUTO_INCREMENT,Name varchar(50),Date_of_issue date,Book_name varchar(50),Status varchar(10),primary key(roll_no));
+ 
+mysql>  insert into Borrower(Name,Date_of_issue,Book_name,Status)values("Himanshu",'2017-06-15',"SEPM","Issued"), ("Abhay",'2023-08-17',"TOC","Issued"), ("Puja",'2023-06-13',"CN","Issued"), ("Geta",'2023-08-20',"TOC","Issued"), ("Kalyani",'2023-06-24',"ISEM","Issued"), ("Dhanu",'2023-07-23',"ISEM","Issued");
+ 
+mysql> select* from Borrower;
++---------+----------+---------------+-----------+--------+
+| roll_no | Name     | Date_of_issue | Book_name | Status |
++---------+----------+---------------+-----------+--------+
+|       1 | Himanshu | 2017-06-15    | SEPM      | Issued |
+|       2 | Abhay    | 2023-08-17    | TOC       | Issued |
+|       3 | Puja     | 2023-06-13    | CN        | Issued |
+|       4 | Geta     | 2023-08-20    | TOC       | Issued |
+|       5 | Kalyani  | 2023-06-24    | ISEM      | Issued |
+|       6 | Dhanu    | 2023-07-23    | ISEM      | Issued |
++---------+----------+---------------+-----------+--------+
+
+mysql> delimiter $$
+mysql> create procedure studfine(roll int,nm varchar(50))
+    -> begin
+    -> declare i_date date;
+    -> declare diff int;
+    -> declare fine_amt int;
+    -> DECLARE EXIT HANDLER FOR SQLEXCEPTION SELECT"Table not found";
+    -> select Date_of_issue into i_date from Borrower where roll_no=roll and Name=nm;
+    -> select DATEDIFF(CURDATE(),i_date)into diff;
+    -> if(diff>=15 and diff<=30)
+    -> then
+    -> set fine_amt=diff*5;
+    -> insert into Fine values(roll,CURDATE(),fine_amt);
+    -> elseif(diff>30)
+    -> then
+    -> set fine_amt=diff*50;
+    -> insert into Fine values(roll,CURDATE(),fine_amt);
+    -> end if;
+    -> update Borrower set Status="Return" where roll_no=roll and Name=nm;
+    -> end $$
+ 
+
+mysql> call studfine(3,"Pooja") $$
+ 
+mysql> select * from Borrower; $$
++---------+----------+---------------+-----------+--------+
+| roll_no | Name     | Date_of_issue | Book_name | Status |
++---------+----------+---------------+-----------+--------+
+|       1 | Himanshu | 2017-06-15    | SEPM      | Issued |
+|       2 | Abhay    | 2023-08-17    | TOC       | Issued |
+|       3 | Puja     | 2023-06-13    | CN        | Issued |
+|       4 | Geta     | 2023-08-20    | TOC       | Issued |
+|       5 | Kalyani  | 2023-06-24    | ISEM      | Issued |
+|       6 | Dhanu    | 2023-07-23    | ISEM      | Issued |
++---------+----------+---------------+-----------+--------+
+
+mysql> select * from Fine; $$
++---------+------------+--------+
+| roll_no | Date       | Amount |
++---------+------------+--------+
+|       3 | 2023-09-14 |   4650 |
++---------+------------+--------+
+
+mysql> call studfine(2,"Abhay") $$
+ 
+mysql> select * from Borrower;
++---------+----------+---------------+-----------+--------+
+| roll_no | Name     | Date_of_issue | Book_name | Status |
++---------+----------+---------------+-----------+--------+
+|       1 | Himanshu | 2017-06-15    | SEPM      | Issued |
+|       2 | Abhay    | 2023-08-17    | TOC       | Return |
+|       3 | Puja     | 2023-06-13    | CN        | Return |
+|       4 | Geta     | 2023-08-20    | TOC       | Issued |
+|       5 | Kalyani  | 2023-06-24    | ISEM      | Issued |
+|       6 | Dhanu    | 2023-07-23    | ISEM      | Issued |
++---------+----------+---------------+-----------+--------+
+
+mysql> select * from Fine;
++---------+------------+--------+
+| roll_no | Date       | Amount |
++---------+------------+--------+
+|       3 | 2023-09-14 |   4650 |
+|       2 | 2023-09-14 |    140 |
++---------+------------+--------+
+
+
+

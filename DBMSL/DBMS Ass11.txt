@@ -1,0 +1,62 @@
+Assignment No : 11
+
+-----------------------------------------------------------------------------------
+
+1) Statewise Population
+> var mapfun=function(){emit(this.state,this.population)}
+> var redfun=function(key,val){return Array.sum(val)}
+> db.city.mapReduce(mapfun,redfun,{out:'statewisepop'})
+{
+    "result" : "statewisepop",
+    "timeMillis" : 35,
+    "counts" : {
+        "input" : 5,
+        "emit" : 5,
+        "reduce" : 1,
+        "output" : 2
+},
+"ok" : 1
+}
+> db.statewisepop.find()
+{ "_id" : "JK", "value" : 7000 }
+{ "_id" : "MH", "value" : 1577653 }
+
+2) Citywise Population
+> var mapfun=function(){emit(this.city,this.population)}
+> var redfun=function(key,val){return Array.sum(val)}
+> db.city.mapReduce(mapfun,redfun,{out:'citywisepop'})
+{
+    "result" : "citywisepop",
+    "timeMillis" : 33,
+    "counts" : {
+        "input" : 5,
+        "emit" : 5,
+        "reduce" : 0,
+        "output" : 5
+}, "ok" : 1
+}
+> db.citywisepop.find()
+{ "_id" : "Sangamner", "value" : 83980 }
+{ "_id" : "manoli", "value" : 43673 }
+{ "_id" : "paloura", "value" : 7000 }
+{ "_id" : "pune", "value" : 560000 }
+{ "_id" : "sangola", "value" : 890000 }
+
+3) Typewise Population
+> var mapfun=function(){emit(this.type,this.population)}
+> var redfun=function(key,val){return Array.sum(val)}
+> db.city.mapReduce(mapfun,redfun,{out:'typewisepop'})
+{
+    "result" : "typewisepop",
+    "timeMillis" : 32,
+    "counts" : {
+        "input" : 5,
+        "emit" : 5,
+        "reduce" : 2,
+        "output" : 2
+},
+"ok" : 1
+}
+> db.typewisepop.find()
+{ "_id" : "rural", "value" : 50673 }
+{ "_id" : "urban", "value" : 1533980 }

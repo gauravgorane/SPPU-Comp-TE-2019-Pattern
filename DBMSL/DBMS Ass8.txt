@@ -1,0 +1,101 @@
+Assignment No : 8
+
+-----------------------------------------------------------------------------------
+
+import java.awt.*;
+import javax.swing.*;
+import java.sql.*;
+import java.awt.event.*;
+
+class LoginPage extends JFrame implements ActionListener {
+    JLabel l1, l2, l3, l4;
+    JTextField t1;
+    JPasswordField t2;
+    JButton b1;
+    Connection cn;
+    Statement st;
+
+    LoginPage() {
+        l1 = new JLabel("Username");
+        l2 = new JLabel("Password");
+        l3 = new JLabel("Login Page", JLabel.CENTER);
+        l4 = new JLabel("Login", JLabel.CENTER);
+        t1 = new JTextField(5);
+        t2 = new JPasswordField(20);
+        b1 = new JButton("Login");
+        b1.setFont(new Font("Arial", Font.BOLD, 20));
+        b1.setSize(150, 40);
+        setLayout(new FlowLayout());
+        JPanel p1 = new JPanel();
+        p1.setLayout(new GridLayout(2, 2, 30, 30));
+        l3.setFont(new Font("Times New Roman", Font.BOLD, 40));
+        l4.setFont(new Font("Times New Roman", Font.BOLD, 35));
+        l4.setForeground(Color.red);
+        p1.add(l4);
+        p1.add(l3);
+        JPanel p2 = new JPanel();
+        p2.setLayout(new GridLayout(2, 2));
+        Font f = new Font("Times New Roman", Font.BOLD, 18);
+        p2.add(l1);
+        l1.setFont(f);
+        p2.add(t1);
+        t1.setFont(f);
+        p2.add(l2);
+        l2.setFont(f);
+        p2.add(t2);
+        t2.setFont(f);
+        JPanel p3 = new JPanel();
+        p3.add(b1);
+        JPanel p4 = new JPanel();
+        p4.setLayout(new GridLayout(5, 2));
+        p4.add(p1);
+        p4.add(new JPanel());
+        p4.add(p2);
+        p4.add(new JPanel());
+        p4.add(p3);
+        setLayout(new FlowLayout());
+        add(p4);
+        setVisible(true);
+        setBounds(200, 0, 700, 600);
+        setTitle("Login");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        b1.addActionListener(this);
+        try {
+            Class.forName("com.mysql.jdbc.Driver");
+            cn = DriverManager.getConnection("jdbc:mysql://localhost:3306/student?characterEncoding=utf8", "root",
+                    "r2314");
+            System.out.println("Connection to the database created");
+            st = cn.createStatement();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "Error is " + e);
+        }
+    }
+
+    public void actionPerformed(ActionEvent ae) {
+        try {
+            if (ae.getSource() == b1) {
+                if (t1.getText().trim().length() > 0) {
+                    if (t2.getText().trim().length() > 0) {
+                        ResultSet rs = st
+                                .executeQuery("Select Password from Login where Username='" + t1.getText() + "'");
+                        if (rs.next()) {
+                            if (rs.getString(1).equals(t2.getText())) {
+                                JOptionPane.showMessageDialog(null, "Login Successful!!");
+                            } else
+                                JOptionPane.showMessageDialog(null, "Invalid password");
+                        } else
+                            JOptionPane.showMessageDialog(null, "Invalid username");
+                    } else
+                        JOptionPane.showMessageDialog(null, "Please Enter the Password");
+                } else
+                    JOptionPane.showMessageDialog(null, "Please Enter the Username");
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, "" + e);
+        }
+    }
+
+    public static void main(String args[]) {
+        new LoginPage();
+    }
+}

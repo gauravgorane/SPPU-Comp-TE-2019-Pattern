@@ -1,0 +1,135 @@
+Assignment No : 7
+
+-----------------------------------------------------------------------------------
+
+Database Trigger (All Types: Row level and Statement level triggers, Before and After Triggers).Write a database trigger on Library table. The System should keep track of the records that are being updated or deleted. The old value of updated or deleted records should be added in Library_Audit table. Note: Instructor will Frame the problem statement for writing PL/SQLblock for all types of Triggers in line with above statement.
+
+-----------------------------------------------------------------------------------
+
+mysql> create table oldroll(roll int,Name varchar(20));
+mysql> create table newroll(roll int,Name varchar(20));
+
+mysql> insert into newroll values(2,'dhanshree');
+mysql> insert into newroll values(5,'asmita');
+
+mysql> insert into oldroll values(2,'Hema');
+mysql> insert into oldroll values(5,'Aditi');
+mysql> insert into oldroll values(4,'srushti');
+mysql> insert into oldroll values(5,'asmita');
+
+mysql> select * from newroll;
++------+-----------+
+| roll | Name      |
++------+-----------+
+|    2 | dhanshree |
+|    5 | asmita    |
++------+-----------+
+
+mysql> select * from oldroll;
++------+---------+
+| roll | Name    |
++------+---------+
+|    2 | Hema    |
+|    5 | Aditi   |
+|    4 | srushti |
+|    5 | asmita  |
++------+---------+
+
+mysql> delimiter $$
+mysql> create procedure rolllist()
+    -> begin
+    -> declare a int;
+    -> declare a1 varchar(10);
+    -> declare b int;
+    -> declare b1 varchar(10);
+    -> declare done int default false;
+    -> declare c1 cursor for select roll,name from oldroll;
+    -> declare c2 cursor for select roll,name from newroll;
+    -> declare continue handler for not found set done=true;
+    -> open c1;
+    -> open c2;
+    -> loop1:loop
+    -> fetch c1 into a,a1;
+    -> if done then
+    -> leave loop1;
+    -> end if;
+    -> loop2:loop
+    -> fetch c2 into b,b1;
+    -> if done then
+    -> insert into newroll values(a,a1);
+    -> leave loop2;
+    -> end if;
+    -> if a1=b1 then
+    -> leave loop2;
+    -> end if;
+    -> end loop;
+    -> end loop;
+    -> close c1;
+    -> close c2;
+    -> end $$
+
+mysql> call rolllist() $$
+
+mysql> select * from newroll $$
++------+-----------+
+| roll | Name      |
++------+-----------+
+|    2 | dhanshree |
+|    5 | asmita    |
+|    2 | Hema      |
++------+-----------+
+
+mysql> create trigger updatedata after update
+    -> on oldroll
+    -> for each row
+    -> begin
+    -> insert into logtable(roll, Name, Date) values(old.roll, old.Name, curdate());
+    -> end;
+    -> $$
+
+mysql> create table logtable(roll int,Name varchar(20), Date varchar(20)); $$
+
+mysql> update oldroll set roll = 6 where name = "asmita"; $$
+
+mysql> select * from oldroll; select * from logtable; $$
++------+---------+
+| roll | Name    |
++------+---------+
+|    2 | Hema    |
+|    5 | Aditi   |
+|    4 | srushti |
+|    6 | asmita  |
++------+---------+
+
++------+--------+------------+
+| roll | Name   | Date       |
++------+--------+------------+
+|    5 | asmita | 2023-09-21 |
++------+--------+------------+
+
+mysql> create trigger deletedata after delete
+    -> on oldroll
+    -> for each row
+    -> begin
+    -> insert into deltable(roll, Name, Date) values(old.roll, old.Name, curdate());
+    -> end;
+    -> $$
+
+mysql> create table deltable(roll int,Name varchar(20), Date varchar(20)); $$
+
+mysql> delete from oldroll where name = "asmita"; $$
+
+mysql> select * from oldroll; select * from deltable; $$
++------+---------+
+| roll | Name    |
++------+---------+
+|    2 | Hema    |
+|    5 | Aditi   |
+|    4 | srushti |
++------+---------+
+
++------+--------+------------+
+| roll | Name   | Date       |
++------+--------+------------+
+|    6 | asmita | 2023-09-21 |
++------+--------+------------+

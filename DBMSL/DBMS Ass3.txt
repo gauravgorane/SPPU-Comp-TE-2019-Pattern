@@ -1,0 +1,331 @@
+Assignment No : 2
+
+-----------------------------------------------------------------------------------
+
+Write at least 10 SQL queries for suitable database application using SQL DML statements. Note: Instructor will design the queries which demonstrate the use of concepts like all types ofJoin, Sub-Query and View.
+
+Design SQL queries for suitable database application using SQL DML statements: all types of Join, SubQuery and View.
+
+-----------------------------------------------------------------------------------
+
+1] Create following Tables
+cust_mstr(cust_no,fname,lname)
+add_dets(code_no,add1,add2,state,city,pincode)
+Retrieve the address of customer Fname as 'xyz' and Lname as 'pqr'
+
+mysql> create table cust_mstr(cust_no int,fname varchar(20),lname varchar(20));
+
+mysql> insert into cust_mstr values (1, 'A', 'aa');
+mysql> insert into cust_mstr values (2, 'B', 'bb');
+mysql> insert into cust_mstr values (3, 'C', 'cc');
+mysql> insert into cust_mstr values (4, 'D', 'dd');
+mysql> insert into cust_mstr values (5, 'E', 'ee');
+mysql> insert into cust_mstr values (6, 'F', 'ff');
+
+mysql> select * from cust_mstr;
++---------+-------+-------+
+| cust_no | fname | lname |
++---------+-------+-------+
+|       1 | A     | aa    |
+|       2 | B     | bb    |
+|       3 | C     | cc    |
+|       4 | D     | dd    |
+|       5 | E     | ee    |
+|       6 | F     | ff    |
++---------+-------+-------+
+
+mysql> create table add_dets(code_no int,add1 varchar(20),add2 varchar(20), state varchar(20), city varchar(20), pincode int);
+
+mysql> insert into add_dets values (1, 'ffgg', 'gh', 'maharashtra', 'pimpri', '411018');
+mysql> insert into add_dets values (2, 'fgg', 'ggh', 'maharashtra', 'pimpri', '411018');
+mysql> insert into add_dets values (3, 'gg', 'gg', 'maharashtra', 'pimpri', '411018');
+mysql> insert into add_dets values (4, 'gghgg', 'dsegg', 'maharashtra', 'pimpri', '411018');
+mysql> insert into add_dets values (5, 'ghgg', 'segg', 'maharashtra', 'pimpri', '411018');
+mysql> insert into add_dets values (6, 'ghg', 'seg', 'maharashtra', 'pimpri', '411018');
+
+mysql> select * from add_dets;
++---------+-------+-------+-------------+--------+---------+
+| code_no | add1  | add2  | state       | city   | pincode |
++---------+-------+-------+-------------+--------+---------+
+|       1 | ffgg  | gh    | maharashtra | pimpri |  411018 |
+|       2 | fgg   | ggh   | maharashtra | pimpri |  411018 |
+|       3 | gg    | gg    | maharashtra | pimpri |  411018 |
+|       4 | gghgg | dsegg | maharashtra | pimpri |  411018 |
+|       5 | ghgg  | segg  | maharashtra | pimpri |  411018 |
+|       6 | ghg   | seg   | maharashtra | pimpri |  411018 |
++---------+-------+-------+-------------+--------+---------+
+
+mysql> select * from cust_mstr inner join add_dets on cust_mstr.cust_no=add_dets.code_no where fname='A' and lname='aa';
++---------+-------+-------+---------+------+------+-------------+--------+---------+
+| cust_no | fname | lname | code_no | add1 | add2 | state       | city   | pincode |
++---------+-------+-------+---------+------+------+-------------+--------+---------+
+|       1 | A     | aa    |       1 | ffgg | gh   | maharashtra | pimpri |  411018 |
++---------+-------+-------+---------+------+------+-------------+--------+---------+
+
+2] Create following Tables
+cust_mstr(custno,fname,lname)
+acc_fd_cust_dets(codeno,acc_fd_no)
+fd_dets(fd_sr_no,amt)
+List the customer holding fixed deposit of amount more than 5000
+
+mysql> create table acc_fd_cust_dets(codeno int, acc_fd_no int);
+mysql> create table fd_dets(fd_sr_no int, amt int);
+
+mysql> insert into acc_fd_cust_dets values (1, 125);
+mysql> insert into acc_fd_cust_dets values (2, 225);
+mysql> insert into acc_fd_cust_dets values (3, 255);
+mysql> insert into acc_fd_cust_dets values (4, 256);
+mysql> insert into acc_fd_cust_dets values (5, 257);
+
+mysql> select * from acc_fd_cust_dets;
++--------+-----------+
+| codeno | acc_fd_no |
++--------+-----------+
+|      1 |       125 |
+|      2 |       225 |
+|      3 |       255 |
+|      4 |       256 |
+|      5 |       257 |
++--------+-----------+
+
+mysql> insert into fd_dets values (1, 5600);
+mysql> insert into fd_dets values (2, 5650);
+mysql> insert into fd_dets values (3, 4650);
+mysql> insert into fd_dets values (4, 5950);
+mysql> insert into fd_dets values (5, 6000);
+
+mysql> select * from fd_dets;
++----------+------+
+| fd_sr_no | amt  |
++----------+------+
+|        1 | 5600 |
+|        2 | 5650 |
+|        3 | 4650 |
+|        4 | 5950 |
+|        5 | 6000 |
++----------+------+
+
+mysql> select * from cust_mstr join fd_dets on cust_mstr.cust_no=fd_dets.fd_sr_no where amt>5000;
++---------+-------+-------+----------+------+
+| cust_no | fname | lname | fd_sr_no | amt  |
++---------+-------+-------+----------+------+
+|       1 | A     | aa    |        1 | 5600 |
+|       2 | B     | bb    |        2 | 5650 |
+|       4 | D     | dd    |        4 | 5950 |
+|       5 | E     | ee    |        5 | 6000 |
++---------+-------+-------+----------+------+
+
+3] Create following Tables
+emp_mstr(e_mpno,f_name,l_name,m_name,dept,desg,branch_no)
+branch_mstr(name,b_no)
+List the employee details along with branch names to which they belong
+
+mysql> create table emp_mstr(e_mpno int ,f_name varchar(20), l_name varchar(20), m_name varchar(20), dept varchar(20), desg varchar(20), branch_no int);
+
+mysql> insert into emp_mstr values (1, 'P', 'pp', 'ppp', 'comp','manager', 101);
+mysql> insert into emp_mstr values (2, 'Q', 'qq', 'qqq', 'comp','associate', 102);
+mysql> insert into emp_mstr values (3, 'R', 'rr', 'rrr', 'comp','associate', 103);
+mysql> insert into emp_mstr values (4, 'S', 'ss', 'sss', 'comp','cashier', 104);
+mysql> insert into emp_mstr values (5, 'T', 'tt', 'ttt', 'comp',
+'peon', 105);
+
+mysql> select * from emp_mstr;
++--------+--------+--------+--------+------+-----------+-----------+
+| e_mpno | f_name | l_name | m_name | dept | desg      | branch_no |
++--------+--------+--------+--------+------+-----------+-----------+
+|      1 | P      | pp     | ppp    | comp | manager   |       101 |
+|      2 | Q      | qq     | qqq    | comp | associate |       102 |
+|      3 | R      | rr     | rrr    | comp | associate |       103 |
+|      4 | S      | ss     | sss    | comp | cashier   |       104 |
+|      5 | T      | tt     | ttt    | comp | peon      |       105 |
++--------+--------+--------+--------+------+-----------+-----------+
+
+mysql> create table branch_mstr(name varchar(20), b_no int);
+
+mysql> insert into branch_mstr values ('pimpri', 105);
+mysql> insert into branch_mstr values ('akurdi', 104);
+mysql> insert into branch_mstr values ('nigdi', 103);
+mysql> insert into branch_mstr values ('chinchwad', 102);
+mysql> insert into branch_mstr values ('khadki', 101);
+
+mysql> select * from branch_mstr;
++-----------+------+
+| name      | b_no |
++-----------+------+
+| pimpri    |  105 |
+| akurdi    |  104 |
+| nigdi     |  103 |
+| chinchwad |  102 |
+| khadki    |  101 |
++-----------+------+
+
+mysql> select * from emp_mstr join branch_mstr on emp_mstr.branch_no=branch_mstr.b_no;
++--------+--------+--------+--------+------+-----------+-----------+-----------+------+
+| e_mpno | f_name | l_name | m_name | dept | desg      | branch_no | name      | b_no |
++--------+--------+--------+--------+------+-----------+-----------+-----------+------+
+|      5 | T      | tt     | ttt    | comp | peon      |       105 | pimpri    |  105 |
+|      4 | S      | ss     | sss    | comp | cashier   |       104 | akurdi    |  104 |
+|      3 | R      | rr     | rrr    | comp | associate |       103 | nigdi     |  103 |
+|      2 | Q      | qq     | qqq    | comp | associate |       102 | chinchwad |  102 |
+|      1 | P      | pp     | ppp    | comp | manager   |       101 | khadki    |  101 |
++--------+--------+--------+--------+------+-----------+-----------+-----------+------+
+
+4] Create following Tables
+emp_mstr(emp_no,f_name,l_name,m_name,dept)
+cntc_dets(code_no,cntc_type,cntc_data)
+List the employee details along with contact details using left outer join & right join
+
+mysql> create table cntc_dets (code_no int , cntc_type varchar(20), cntc_data int);
+
+mysql> insert into cntc_dets values (1, 'home', 1245789654);
+mysql> insert into cntc_dets values (2, 'home', 1545789654);
+mysql> insert into cntc_dets values (3, 'home', 1545789654);
+mysql> insert into cntc_dets values (4, 'home', 1645789654);
+mysql> insert into cntc_dets values (5, 'home', 1745789654);
+
+mysql> select * from cntc_dets;
++---------+-----------+------------+
+| code_no | cntc_type | cntc_data  |
++---------+-----------+------------+
+|       1 | home      | 1245789654 |
+|       2 | home      | 1545789654 |
+|       3 | home      | 1545789654 |
+|       4 | home      | 1645789654 |
+|       5 | home      | 1745789654 |
++---------+-----------+------------+
+
+mysql> select * from emp_mstr left join cntc_dets on emp_mstr.e_mpno=cntc_dets.code_no;
++--------+--------+--------+--------+------+-----------+-----------+---------+-----------+------------+
+| e_mpno | f_name | l_name | m_name | dept | desg      | branch_no | code_no | cntc_type | cntc_data  |
++--------+--------+--------+--------+------+-----------+-----------+---------+-----------+------------+
+|      1 | P      | pp     | ppp    | comp | manager   |       101 |       1 | home      | 1245789654 |
+|      2 | Q      | qq     | qqq    | comp | associate |       102 |       2 | home      | 1545789654 |
+|      3 | R      | rr     | rrr    | comp | associate |       103 |       3 | home      | 1545789654 |
+|      4 | S      | ss     | sss    | comp | cashier   |       104 |       4 | home      | 1645789654 |
+|      5 | T      | tt     | ttt    | comp | peon      |       105 |       5 | home      | 1745789654 |
++--------+--------+--------+--------+------+-----------+-----------+---------+-----------+------------+
+
+mysql> select * from emp_mstr right join cntc_dets on emp_mstr.e_mpno=cntc_dets.code_no;
++--------+--------+--------+--------+------+-----------+-----------+---------+-----------+------------+
+| e_mpno | f_name | l_name | m_name | dept | desg      | branch_no | code_no | cntc_type | cntc_data  |
++--------+--------+--------+--------+------+-----------+-----------+---------+-----------+------------+
+|      1 | P      | pp     | ppp    | comp | manager   |       101 |       1 | home      | 1245789654 |
+|      2 | Q      | qq     | qqq    | comp | associate |       102 |       2 | home      | 1545789654 |
+|      3 | R      | rr     | rrr    | comp | associate |       103 |       3 | home      | 1545789654 |
+|      4 | S      | ss     | sss    | comp | cashier   |       104 |       4 | home      | 1645789654 |
+|      5 | T      | tt     | ttt    | comp | peon      |       105 |       5 | home      | 1745789654 |
++--------+--------+--------+--------+------+-----------+-----------+---------+-----------+------------+
+
+5] Create following Tables
+cust_mstr(cust_no,fname,lname)
+add_dets(code_no,pincode)
+List the customer who do not have bank branches in their vicinity.
+
+mysql> select * from cust_mstr where cust_no in (select code_no from add_dets where code_no like 'c%' and pincode not in (select pincode from add_dets where code_no like 'b%'));
+
+Empty set (0.00 sec)
+
+6a] Create View on borrower table by selecting any two columns and perform insert update delete operations
+
+mysql> create table Borrower( cust_name varchar(40), loan_no int);
+
+mysql> insert into borrower values ('C', 101);
+mysql> insert into borrower values ('B', 102);
+mysql> insert into borrower values ('E',103);
+
+mysql> create view VIEW as select cust_name,loan_no from Borrower;
+
+mysql> select * from VIEW;
++-----------+---------+
+| cust_name | loan_no |
++-----------+---------+
+| C         |     101 |
+| B         |     102 |
+| E         |     103 |
++-----------+---------+
+
+mysql> insert into view values("Ram",8);
+mysql> update view set loan_no=105 where cust_name="E";
+mysql> delete from view where loan_no=102;
+
+mysql> select * from VIEW;
++-----------+---------+
+| cust_name | loan_no |
++-----------+---------+
+| C         |     101 |
+| E         |     105 |
+| Ram       |       8 |
++-----------+---------+
+
+6b] Create view on borrower and depositor table by selecting any one column from each table perform insert update delete operations
+
+mysql> create table Depositor( cust_name varchar(40), acc_no int);
+
+mysql> insert into depositor values ('C',1);
+mysql> insert into depositor values ('B',2);
+mysql> insert into depositor values ('A',3);
+mysql> insert into depositor values ('E',4);
+mysql> insert into depositor values ('D',5);
+
+mysql> create view OH(loan_no, cust_name) as select Borrower.loan_no, Borrower.cust_name from Borrower, Depositor where Borrower.loan_no = Depositor.acc_no;
+
+mysql> select * from OH;
++---------+-----------+
+| loan_no | cust_name |
++---------+-----------+
+|     101 | C         |
++---------+-----------+
+
+mysql> insert into OH(loan_no, cust_name) values (5, 'jj');
+mysql> update OH set loan_no = 8 where cust_name = 'C';
+mysql> delete from OH where loan_no = 8;
+
+mysql> select * from OH;
++---------+-----------+
+| loan_no | cust_name |
++---------+-----------+
+|       5 | jj        |
++---------+-----------+
+
+6c] create updateable view on borrower table by selecting any two columns and perform insert, update and delete operations.
+
+mysql> create view my_view as select cust_name,loan_no from Borrower;
+
+mysql> select * from my_view;
++-----------+---------+
+| cust_name | loan_no |
++-----------+---------+
+| C         |       8 |
+| E         |     105 |
+| Ram       |       8 |
+| jj        |       5 |
++-----------+---------+
+
+mysql>  insert into my_view values("chetan",10);
+mysql> update my_view set loan_no=11 where cust_name="Ram";
+mysql> delete from my_view where loan_no=5;
+
+mysql> select * from my_view;
++-----------+---------+
+| cust_name | loan_no |
++-----------+---------+
+| C         |       8 |
+| E         |     105 |
+| Ram       |      11 |
+| chetan    |      10 |
++-----------+---------+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

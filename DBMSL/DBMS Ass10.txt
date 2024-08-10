@@ -1,0 +1,90 @@
+Assignment No : 10
+
+-----------------------------------------------------------------------------------
+
+1)	Create a database and collection
+
+test> use department
+switched to db department
+department> db.createCollection("teacher")
+{ ok: 1 }
+
+2)	Insert Sample Data
+
+department> db.teacher.insertMany([
+...     { name: "John", department: "Math", experience: 5, salary: 60000 },
+...     { name: "Alice", department: "Physics", experience: 3, salary: 55000 },
+...     { name: "Bob", department: "Math", experience: 7, salary: 70000 },
+...     { name: "Eve", department: "Chemistry", experience: 4, salary: 60000 },
+...     { name: "Mike", department: "Physics", experience: 6, salary: 65000 }
+... ])
+{
+  acknowledged: true,
+  insertedIds: {
+    '0': ObjectId("65302b8690fa6873c733658f"),
+    '1': ObjectId("65302b8690fa6873c7336590"),
+    '2': ObjectId("65302b8690fa6873c7336591"),
+    '3': ObjectId("65302b8690fa6873c7336592"),
+    '4': ObjectId("65302b8690fa6873c7336593")
+  }
+}
+
+3)	Display the department wise Average Salary
+
+department> db.teacher.aggregate([
+...     {
+...         $group: {
+...             _id: "$department",
+...             avgSalary: { $avg: "$salary" }
+...         }
+...     }
+... ])
+[
+  { _id: 'Math', avgSalary: 65000 },
+  { _id: 'Physics', avgSalary: 60000 },
+  { _id: 'Chemistry', avgSalary: 60000 }
+]
+
+4)	Display the number of Employees in Each Department
+
+department> db.teacher.aggregate([
+...     {
+...         $group: {
+...             _id: "$department",
+...             count: { $sum: 1 }
+...         }
+...     }
+... ])
+[
+  { _id: 'Math', count: 2 },
+  { _id: 'Physics', count: 2 },
+  { _id: 'Chemistry', count: 1 }
+]
+
+5)	Display the Department Wise Minimum Salary
+
+department> db.teacher.aggregate([
+...     {
+...         $group: {
+...             _id: "$department",
+...             minSalary: { $min: "$salary" }
+...         }
+...     }
+... ])
+[
+  { _id: 'Math', minSalary: 60000 },
+  { _id: 'Physics', minSalary: 55000 },
+  { _id: 'Chemistry', minSalary: 60000 }
+]
+
+6)	Apply an Index and Drop an Index
+
+department> db.teacher.createIndex({ department: 1 })
+department_1
+department> db.teacher.dropIndex("department_1")
+{ nIndexesWas: 2, ok: 1 }
+department> db.teacher.createIndex({department: 2})
+department_2
+department> db.teacher.dropIndex("department_2")
+{ nIndexesWas: 2, ok: 1 }
+department>
